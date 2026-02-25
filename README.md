@@ -1,57 +1,253 @@
-# Photon Cardgame MVP
+Photon Cardgame MVP
 
-A minimal turn-based card game MVP built with **Unity + Photon PUN2**  
-to demonstrate **host-authoritative networking**, **server-time synchronization**,  
-and **hidden information handling**.
+Host-Authoritative Multiplayer Architecture Sample (Unity + Photon PUN2)
 
-## Overview
-This project is not focused on visuals or game polish.  
-Its purpose is to clearly demonstrate reliable multiplayer turn synchronization
-and deterministic result calculation in a small, controlled scope.
+A minimal 2-player turn-based card game built to demonstrate correct multiplayer synchronization, authority separation, and reliable hidden-information handling in a small but technically rigorous scope.
 
-## Key Features
-- Host-authoritative turn and result calculation
-- Server-time based phase synchronization (PhotonNetwork.Time)
-- Hidden information handling (opponent card is never sent before reveal)
-- Deterministic scoring logic
-- Basic disconnect handling
+This project prioritizes network correctness and architecture clarity over visuals and content scale.
 
-## Game Rules (Simplified)
-- Each player has 5 cards:
-  - King Deck: 1 King, 4 Citizens
-  - Slave Deck: 1 Slave, 4 Citizens
-- King always beats Citizens  
-- Citizens beats Slave  
-- Slave beats King
-- First player to reach **10 points** wins the match
+🎯 Project Purpose
 
-## Turn Flow
-1. Place Phase: Players select and submit a card
-2. Reveal Phase: Host reveals both cards simultaneously
-3. Score Phase: Host calculates and syncs scores
-4. Next Phase: Prepare next turn
+This project exists as a network-architecture portfolio sample, not as a content-heavy game.
 
-## Architecture Overview
-- **GameNetworkManager**: Photon connection and room handling
-- **TurnCoordinator (Host Only)**: Phase control, timer, result calculation
-- **MatchState / PlayerState**: Deterministic game state data
-- **UIController**: Card selection and state display
-- **DebugOverlay**: Network and turn state visualization
+The primary goal was to design and implement:
 
-## Why This Project Exists
-This project was created as a **networking-focused portfolio sample**.
-Visual quality and content scale were intentionally minimized
-to focus on correctness, clarity, and reliability.
+A strict Host-Authoritative multiplayer model
 
-## How to Run
-1. Open the project in Unity
-2. Install Photon PUN2
-3. Set your Photon App ID
-4. Build & run two clients or use Editor + Build
+Deterministic result calculation
 
-## Status
-- MVP in progress
+Hidden information protection
 
----
+Controlled state synchronization
 
-[Korean documentation is available in README_KR.md]
+Reconnect grace handling
+
+Clean separation between networking logic and UI
+
+🧠 Core Networking Philosophy
+Authority Model
+
+This project follows a strict Host-Authoritative architecture.
+
+Only the MasterClient (Host):
+
+Calculates match results
+
+Updates scores
+
+Advances phase state
+
+Controls reconnect grace timer
+
+Decides match termination
+
+Clients:
+
+Send input only
+
+Never calculate results locally
+
+Update UI exclusively through RPC broadcasts
+
+This eliminates:
+
+Score divergence
+
+Double execution bugs
+
+Latency-based desync
+
+Client-side cheating risks
+
+🔐 Hidden Information Handling
+
+Card submission is intentionally separated from reveal.
+
+During submission:
+
+Each client sends only their selected card via RPC.
+
+Opponent card remains visually hidden.
+
+During reveal:
+
+Host triggers a synchronized reveal RPC.
+
+Both cards are revealed simultaneously.
+
+Opponent card information is never exposed before reveal.
+
+This ensures deterministic fairness and information integrity.
+
+🔄 Phase Synchronization Strategy
+
+Game phases:
+
+WaitingForPlayers
+→ Round_Pick
+→ Round_Reveal
+→ Round_Result
+→ Winner_Choose
+→ Game_End
+
+All phase transitions are initiated by the Host.
+
+Synchronization tools:
+
+RPC_BroadcastReveal
+
+RPC_BroadcastResult
+
+RPC_SyncStateToRejoin
+
+PhotonNetwork.Time (phase timing reference)
+
+Clients are passive state receivers.
+
+🔁 Reconnect & Disconnect Handling
+Guest Disconnect
+
+Host starts a 60-second grace timer.
+
+If the guest reconnects:
+
+Full state sync is performed via RPC_SyncStateToRejoin.
+
+If timeout expires:
+
+Game resets to Waiting state via RPC_ForceResetToWaiting.
+
+Host Disconnect
+
+Since authority cannot be preserved:
+
+OnMasterClientSwitched triggers immediate exit.
+
+Client returns to Lobby.
+
+UI informs the user.
+
+This avoids undefined authority states.
+
+🧩 Architecture Overview
+
+Scene Flow:
+
+PhotonBootstrap (DontDestroyOnLoad)
+    ↓
+TitleManager
+    ↓
+LobbyManager
+    ↓
+GameManager (Host Authority)
+Key Components
+
+PhotonBootstrap
+
+Handles connection only
+
+Auto-reconnect on unexpected disconnect
+
+AutomaticallySyncScene enabled
+
+LobbyManager
+
+Room list caching
+
+Search/filter
+
+Private/public room handling
+
+CustomProperties usage (title/code/password)
+
+GameManager
+
+State machine
+
+Authority separation
+
+Deterministic result calculation
+
+Reconnect logic
+
+Winner role selection logic
+
+HandCardButton
+
+Card selection logic
+
+Dynamic key-card replacement
+
+Visual state handling
+
+🎮 Game Rules (Simplified)
+
+Each player has 5 cards:
+
+King Deck:
+
+1 King
+
+4 Citizens
+
+Slave Deck:
+
+1 Slave
+
+4 Citizens
+
+Rules:
+
+King beats Citizen
+
+Citizen beats Slave
+
+Slave beats King
+
+First player to reach 10 points wins.
+
+🧪 What This Demonstrates
+
+This project demonstrates my ability to:
+
+Design multiplayer authority structures
+
+Prevent client-side desynchronization
+
+Handle state recovery
+
+Separate UI from game logic
+
+Build deterministic match systems
+
+Handle disconnection safely
+
+Use Photon PUN beyond basic room join
+
+🚀 How To Run
+
+Open in Unity
+
+Install Photon PUN2
+
+Insert your Photon App ID
+
+Run two clients (Editor + Build or ParrelSync)
+
+📌 Future Improvements
+
+Host migration architecture research
+
+Server-authoritative model comparison
+
+Spectator mode
+
+Better timer visualization
+
+Refactor to event-driven UI update
+
+📣 Final Note
+
+This project intentionally avoids visual complexity to highlight multiplayer correctness and architectural discipline.
+
+It is a focused demonstration of reliable 2-player real-time turn synchronization.
