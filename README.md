@@ -13,6 +13,10 @@ A minimal 2-player turn-based card game built to demonstrate:
 This project prioritizes network correctness and architectural clarity
 over visuals and content scale.
 
+## Demo Video
+
+[![Watch Demo Video](https://img.youtube.com/vi/lh3c1DRwqFQ/hqdefault.jpg)](https://youtu.be/lh3c1DRwqFQ)
+
 ------------------------------------------------------------------------
 
 ## Project Purpose
