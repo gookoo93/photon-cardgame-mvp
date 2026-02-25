@@ -16,6 +16,10 @@ Unity + Photon PUN2
 
 ------------------------------------------------------------------------
 
+## Demo Video
+
+[![Watch Demo Video](https://img.youtube.com/vi/lh3c1DRwqFQ/hqdefault.jpg)](https://youtu.be/lh3c1DRwqFQ)
+
 ## 프로젝트 목적
 
 이 프로젝트는 단순 게임 구현이 아닌, 네트워크 설계 중심의 포트폴리오
